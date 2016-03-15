@@ -1,0 +1,8 @@
+version = "0.1.0"
+description = "scrypt password based key derivation function in pure OCaml"
+requires = "cstruct nocrypto"
+archive(byte) = "scrypt_kdf.cma"
+archive(byte, plugin) = "scrypt_kdf.cma"
+archive(native) = "scrypt_kdf.cmxa"
+archive(native, plugin) = "scrypt_kdf.cmxs"
+exists_if = "scrypt_kdf.cma"
