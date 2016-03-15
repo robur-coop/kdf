@@ -52,4 +52,3 @@ let salsa20_12_core i =
 
 let salsa20_20_core i =
   salsa_core 10 i
-
