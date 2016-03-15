@@ -1,0 +1,26 @@
+opam-version: "1.2"
+name:         "scrypt-kdf"
+homepage:     "https://github.com/abeaumont/ocaml-scrypt-kdf"
+dev-repo:     "https://github.com/abeaumont/ocaml-scrypt-kdf.git"
+bug-reports:  "https://github.com/abeaumont/ocaml-scrypt-kdf/issues"
+author:       ["Alfredo Beaumont <alfredo.beaumont@gmail.com>"]
+maintainer:   ["Alfredo Beaumont <alfredo.beaumont@gmail.com>"]
+license:      "BSD2"
+
+build: [
+  ["ocaml" "pkg/build.ml" "native=%{ocaml-native}%"
+                          "native-dynlink=%{ocaml-native-dynlink}%"
+                          "alcotest=false"]
+]
+build-test: [
+  ["ocaml" "pkg/build.ml" "native=%{ocaml-native}%"
+                          "native-dynlink=%{ocaml-native-dynlink}%"
+                          "alcotest=true"]
+  ["sh" "-exc" "./run_tests.sh"]
+]
+depends: [
+  "ocamlfind" {build}
+  "cstruct" {>= "1.7.0"}
+  "alcotest" {test}
+  "ocamlbuild" {build}
+]
