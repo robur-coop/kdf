@@ -11,17 +11,17 @@ salsa20_core: salsa20_core.ml salsa20_core.mli
 salsa20_core_test: salsa20_core_tests.ml salsa20_core
 	${OCAMLBUILD} salsa20_core_tests.native
 
-scrypt: scrypt.ml scrypt.mli
-	${OCAMLBUILD} scrypt.cmx
+scrypt_kdf: scrypt_kdf.ml scrypt_kdf.mli
+	${OCAMLBUILD} scrypt_kdf.cmx
 
-scrypt_test: scrypt_tests.ml scrypt
-	${OCAMLBUILD} scrypt_tests.native
+scrypt_kdf_test: scrypt_kdf_tests.ml scrypt_kdf
+	${OCAMLBUILD} scrypt_kdf_tests.native
 
-lib: salsa20_core scrypt
+lib: salsa20_core scrypt_kdf
 
-test: salsa20_core_test scrypt_test
+test: salsa20_core_test scrypt_kdf_test
 
-docs: salsa20.mli scrypt.mli
+docs: salsa20.mli scrypt_kdf.mli
 	${OCAMLBUILD} -no-links ${OCAMLDOCFLAGS} doc/api.docdir/index.html
 	cp doc/style.css ${BUILDDIR}/${DOCDIR}/style.css
 
