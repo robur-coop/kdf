@@ -21,7 +21,7 @@ lib: salsa20_core scrypt_kdf
 
 test: salsa20_core_test scrypt_kdf_test
 
-docs: salsa20.mli scrypt_kdf.mli
+docs: salsa20_core.mli scrypt_kdf.mli
 	${OCAMLBUILD} -no-links ${OCAMLDOCFLAGS} doc/api.docdir/index.html
 	cp doc/style.css ${BUILDDIR}/${DOCDIR}/style.css
 
