@@ -12,7 +12,7 @@ let scrypt_test1 =
   test_scrypt
     ~password:""
     ~salt:""
-    ~n:16L
+    ~n:16
     ~r:1
     ~p:1
     ~dk_len:64l
@@ -22,7 +22,7 @@ let scrypt_test2 =
   test_scrypt
     ~password:"password"
     ~salt:"NaCl"
-    ~n:1024L
+    ~n:1024
     ~r:8
     ~p:16
     ~dk_len:64l
@@ -32,7 +32,7 @@ let scrypt_test3 =
   test_scrypt
     ~password:"pleaseletmein"
     ~salt:"SodiumChloride"
-    ~n:16384L
+    ~n:16384
     ~r:8
     ~p:1
     ~dk_len:64l
@@ -42,7 +42,7 @@ let scrypt_test4 =
   test_scrypt
     ~password:"pleaseletmein"
     ~salt:"SodiumChloride"
-    ~n:1048576L
+    ~n:1048576
     ~r:8
     ~p:1
     ~dk_len:64l

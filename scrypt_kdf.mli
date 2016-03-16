@@ -1,1 +1,1 @@
-val scrypt : password:Cstruct.t -> salt:Cstruct.t -> n:int64 -> r:int -> p:int -> dk_len:int32 -> Cstruct.t
+val scrypt : password:Cstruct.t -> salt:Cstruct.t -> n:int -> r:int -> p:int -> dk_len:int32 -> Cstruct.t
