@@ -42,7 +42,7 @@ let salsa_core count i =
       let open Nocrypto.Numeric.Int32 in
       Cstruct.LE.set_uint32 o (j * 4) (xj + ij)
     done;
-    o;;
+    o
 
 let salsa20_8_core i =
   salsa_core 4 i
