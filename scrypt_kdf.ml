@@ -5,7 +5,7 @@ let scrypt_block_mix b r =
     let b_i = Cstruct.sub b (i * 64) 64 in
     Nocrypto.Uncommon.Cs.xor_into !x b_i 64;
     x := Salsa20_core.salsa20_8_core b_i;
-    let offset = ((i mod 2) lsl (r - 1)) + i / 2 in
+    let offset = (i mod 2) lsl (max 0 (r / 2 - 1)) + i / 2 in
     Cstruct.blit !x 0 b' (offset * 64) 64
   done;
   b'
