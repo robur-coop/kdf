@@ -4,7 +4,7 @@ let test_scrypt_kdf ~password ~salt ~n ~r ~p ~dk_len ~dk =
   and salt = of_string salt
   and dk = to_string (Nocrypto.Uncommon.Cs.of_hex dk) in
   (fun () ->
-     let edk = Scrypt_kdf.scrypt_kdf ~password ~salt ~n ~p ~dk_len in
+     let edk = Scrypt_kdf.scrypt_kdf ~password ~salt ~n ~r ~p ~dk_len in
      let sedk = to_string edk in
      Alcotest.check Alcotest.string "Scrypt test" sedk dk)
 
