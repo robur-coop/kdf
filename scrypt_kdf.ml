@@ -10,7 +10,7 @@ let scrypt_block_mix b r =
   done;
   b'
 
-let scrypt_ro_mix b r n =
+let scrypt_ro_mix b ~r ~n =
   (* TODO: Use nocrypto's clone once it's available *)
   let clone cs =
     let l = Cstruct.len cs in
@@ -36,3 +36,22 @@ let scrypt_ro_mix b r n =
     x := scrypt_block_mix !x r;
   done;
   !x
+
+let scrypt_kdf ~password ~salt ~n ~r ~p ~dk_len =
+  let is_power_of_2 x = (x land (x - 1)) = 0 in
+  if n <= 1 then invalid_arg "n must be larger than 1"
+  else if not (is_power_of_2 n) then invalid_arg "n must be a power of 2"
+  else if p <= 0 then invalid_arg "p must be a positive integer"
+  else if p > (Int64.to_int (Int64.div 0xffffffffL 4L) / r) then invalid_arg "p too big"
+  else if dk_len <= 0l then invalid_arg "derived key length must be a positive integer";
+  let b_len = 128 * r * p in
+  let rec divide_into_blocks b blocks = function
+      0 -> blocks
+    | i -> let off = b_len - (p - i + 1) * r in
+           divide_into_blocks b ((Cstruct.sub b off r)::blocks) (i - 1) in
+  let dk_len = Int32.of_int (128 * r * p) in
+  let dk = Pbkdf.pbkdf2 ~prf:`SHA256 ~password ~salt ~count:1 ~dk_len in
+  let b = divide_into_blocks dk [] p in
+  let b' = List.map (scrypt_ro_mix ~r ~n) b in
+  let salt = Cstruct.concat b' in
+  Pbkdf.pbkdf2 ~prf:`SHA256 ~password ~salt ~count:1 ~dk_len
