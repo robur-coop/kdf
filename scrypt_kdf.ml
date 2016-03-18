@@ -44,13 +44,15 @@ let scrypt_kdf ~password ~salt ~n ~r ~p ~dk_len =
   else if p <= 0 then invalid_arg "p must be a positive integer"
   else if p > (Int64.to_int (Int64.div 0xffffffffL 4L) / r) then invalid_arg "p too big"
   else if dk_len <= 0l then invalid_arg "derived key length must be a positive integer";
-  let b_len = 128 * r * p in
-  let rec divide_into_blocks b blocks = function
+  let rec partition b blocks = function
       0 -> blocks
-    | i -> let off = (i - 1) * r * 128 in
-           divide_into_blocks b ((Cstruct.sub b off (r * 128))::blocks) (i - 1) in
-  let dk = Pbkdf.pbkdf2 ~prf:`SHA256 ~password ~salt ~count:1 ~dk_len:(Int32.of_int b_len) in
-  let b = divide_into_blocks dk [] p in
+    | i ->
+      let off = (i - 1) * r * 128 in
+      let block = Cstruct.sub b off (r * 128) in
+      partition b (block :: blocks) (i - 1) in
+  let blen = Int32.of_int (128 * r * p) in
+  let dk = Pbkdf.pbkdf2 ~prf:`SHA256 ~password ~salt ~count:1 ~dk_len:blen in
+  let b = partition dk [] p in
   let b' = List.map (scrypt_ro_mix ~r ~n) b in
   let salt = Cstruct.concat b' in
   Pbkdf.pbkdf2 ~prf:`SHA256 ~password ~salt ~count:1 ~dk_len
