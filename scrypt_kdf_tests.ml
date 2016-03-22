@@ -52,7 +52,7 @@ let scrypt_kdf_tests = [
   "Test Case 1", `Quick, scrypt_kdf_test1;
   "Test Case 2", `Quick, scrypt_kdf_test2;
   "Test Case 3", `Quick, scrypt_kdf_test3;
-  "Test Case 4", `Quick, scrypt_kdf_test4;
+  "Test Case 4", `Slow, scrypt_kdf_test4;
 ]
 
 let () =
