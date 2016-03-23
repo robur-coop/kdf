@@ -11,14 +11,8 @@ let scrypt_block_mix b r =
   b'
 
 let scrypt_ro_mix b ~r ~n =
-  (* TODO: Use nocrypto's clone once it's available *)
-  let clone cs =
-    let l = Cstruct.len cs in
-    let cs' = Cstruct.create l in
-    Cstruct.blit cs 0 cs' 0 l;
-    cs'
-  and blen = r * 128 in
-  let x = ref (clone b)
+  let blen = r * 128 in
+  let x = ref (Nocrypto.Uncommon.Cs.clone b)
   and v = Cstruct.create (blen * n) in
   for i = 0 to n - 1 do
     Cstruct.blit !x 0 v (blen * i) blen;

@@ -5,14 +5,7 @@ let salsa_core count i =
     let r a b =
       let rs = 32 - b in
       let open Nocrypto.Numeric.Int32 in (a lsl b) lor (a lsr rs) in
-    (* TODO: Use nocrypto's clone once it's available *)
-    let clone cs =
-      let l = Cstruct.len cs in
-      let cs' = Cstruct.create l in
-      Cstruct.blit cs 0 cs' 0 l;
-      cs'
-    in
-    let x = clone i in
+    let x = Nocrypto.Uncommon.Cs.clone i in
     let combine y0 y1 y2 shift =
       let a = Cstruct.LE.get_uint32 x (y0 * 4)
       and b = Cstruct.LE.get_uint32 x (y1 * 4)
