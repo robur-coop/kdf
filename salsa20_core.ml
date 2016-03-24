@@ -2,13 +2,13 @@ let salsa_core count i =
   let len = 64 in
   if Cstruct.len i <> len then invalid_arg "input must be 16 blocks of 32 bits"
   else
-    let to_array c = Array.init 16 (fun i -> Cstruct.LE.get_uint32 c (i * 4)) in
-    let r a b =
-      let rs = 32 - b in
-      let open Nocrypto.Numeric.Int32 in (a lsl b) lor (a lsr rs) in
-    let x = to_array i in
     let combine y0 y1 y2 shift =
-      let open Nocrypto.Numeric.Int32 in (r (y1 + y2) shift) lxor y0 in
+      let open Nocrypto.Numeric.Int32 in
+      let r a b =
+        let rs = 32l - (of_int b) in
+        (a lsl b) lor (a lsr (to_int rs)) in
+      (r (y1 + y2) shift) lxor y0
+    and x = Array.init 16 (fun j -> Cstruct.LE.get_uint32 i (j * 4)) in
     let quarterround y0 y1 y2 y3 =
       x.(y1) <- combine x.(y1) x.(y0) x.(y3) 7;
       x.(y2) <- combine x.(y2) x.(y1) x.(y0) 9;
@@ -27,8 +27,8 @@ let salsa_core count i =
     done;
     let o = Cstruct.create len in
     for j = 0 to 15 do
-      let xj = x.(j) in
-      let ij = Cstruct.LE.get_uint32 i (j * 4) in
+      let xj = x.(j)
+      and ij = Cstruct.LE.get_uint32 i (j * 4) in
       let open Nocrypto.Numeric.Int32 in
       Cstruct.LE.set_uint32 o (j * 4) (xj + ij)
     done;
