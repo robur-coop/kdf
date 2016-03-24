@@ -7,17 +7,20 @@ let salsa_core count i =
       let open Nocrypto.Numeric.Int32 in (a lsl b) lor (a lsr rs) in
     let x = Nocrypto.Uncommon.Cs.clone i in
     let combine y0 y1 y2 shift =
-      let a = Cstruct.LE.get_uint32 x (y0 * 4)
-      and b = Cstruct.LE.get_uint32 x (y1 * 4)
-      and c = Cstruct.LE.get_uint32 x (y2 * 4) in
-      let open Nocrypto.Numeric.Int32 in
-      let tmp = (r (b + c) shift) lxor a in
-      Cstruct.LE.set_uint32 x (y0 * 4) tmp in
+      let open Nocrypto.Numeric.Int32 in (r (y1 + y2) shift) lxor y0 in
     let quarterround y0 y1 y2 y3 =
-      combine y1 y0 y3 7;
-      combine y2 y1 y0 9;
-      combine y3 y2 y1 13;
-      combine y0 y3 y2 18 in
+      let a = ref (Cstruct.LE.get_uint32 x (y0 * 4))
+      and b = ref (Cstruct.LE.get_uint32 x (y1 * 4))
+      and c = ref (Cstruct.LE.get_uint32 x (y2 * 4))
+      and d = ref (Cstruct.LE.get_uint32 x (y3 * 4)) in
+      b := combine !b !a !d 7;
+      c := combine !c !b !a 9;
+      d := combine !d !c !b 13;
+      a := combine !a !d !c 18;
+      Cstruct.LE.set_uint32 x (y0 * 4) !a;
+      Cstruct.LE.set_uint32 x (y1 * 4) !b;
+      Cstruct.LE.set_uint32 x (y2 * 4) !c;
+      Cstruct.LE.set_uint32 x (y3 * 4) !d in
     for _ = 1 to count do
       quarterround 0 4 8 12;
       quarterround 5 9 13 1;
