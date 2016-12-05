@@ -5,5 +5,6 @@ sudo: required
 env:
   - PACKAGE="scrypt-kdf" OCAML_VERSION=4.02
   - PACKAGE="scrypt-kdf" OCAML_VERSION=4.03
+  - PACKAGE="scrypt-kdf" OCAML_VERSION=4.04
 notifications:
   email: false
