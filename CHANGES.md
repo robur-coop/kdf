@@ -1,3 +1,7 @@
+# 0.4.0 (2017-03-04)
+
+* Moved Salsa20_core module to its own package
+
 # 0.3.0 (2017-02-21)
 
 * Replaced underscores by dashes in library names
