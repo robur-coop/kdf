@@ -1,6 +1,8 @@
-# 0.4.0 (2017-03-04)
+# 0.4.0 (2017-03-09)
 
-* Moved Salsa20_core module to its own package
+* Removed Makefile, unneeded with topkg
+* Made pkg.ml executable
+* Added salsa20-core as a dependency and remove related code
 
 # 0.3.0 (2017-02-21)
 
