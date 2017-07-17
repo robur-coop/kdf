@@ -3,13 +3,13 @@ install: wget https://raw.githubusercontent.com/ocaml/ocaml-ci-scripts/master/.t
 script: bash -ex .travis-opam.sh
 sudo: required
 env:
-  - PACKAGE="scrypt-kdf" OCAML_VERSION=4.02
-  - PACKAGE="scrypt-kdf" OCAML_VERSION=4.03
-  - PACKAGE="scrypt-kdf" OCAML_VERSION=4.04
-  - PACKAGE="scrypt-kdf" OCAML_VERSION=4.05
+  - PACKAGE=scrypt-kdf OCAML_VERSION=4.02
+  - PACKAGE=scrypt-kdf OCAML_VERSION=4.03
+  - PACKAGE=scrypt-kdf OCAML_VERSION=4.04
+  - PACKAGE=scrypt-kdf OCAML_VERSION=4.05
 matrix:
   allow_failures:
-    - env: PACKAGE="scrypt-kdf" OCAML_VERSION=4.05
+    - env: PACKAGE=scrypt-kdf OCAML_VERSION=4.05
 
 notifications:
   email: false
