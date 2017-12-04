@@ -7,9 +7,6 @@ env:
   - PACKAGE=scrypt-kdf OCAML_VERSION=4.03
   - PACKAGE=scrypt-kdf OCAML_VERSION=4.04
   - PACKAGE=scrypt-kdf OCAML_VERSION=4.05
-matrix:
-  allow_failures:
-    - env: PACKAGE=scrypt-kdf OCAML_VERSION=4.05
 
 notifications:
   email: false
