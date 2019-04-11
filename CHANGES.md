@@ -1,3 +1,7 @@
+# Unreleased
+
+* Upgrade to opam 2.0
+
 # 0.4.0 (2017-03-09)
 
 * Removed Makefile, unneeded with topkg
