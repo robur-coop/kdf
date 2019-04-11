@@ -1,3 +1,0 @@
-PKG cstruct nocrypto pbkdf salsa20-core alcotest
-
-B _build/

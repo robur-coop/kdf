@@ -1,5 +1,6 @@
 # Unreleased
 
+* Move to dune
 * Upgrade to opam 2.0
 
 # 0.4.0 (2017-03-09)

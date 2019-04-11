@@ -1,8 +1,0 @@
-version = "%%VERSION_NUM%%"
-description = "scrypt password based key derivation function in pure OCaml"
-requires = "cstruct nocrypto pbkdf salsa20-core"
-archive(byte) = "scrypt-kdf.cma"
-archive(native) = "scrypt-kdf.cmxa"
-plugin(byte) = "scrypt-kdf.cma"
-plugin(native) = "scrypt-kdf.cmxs"
-exists_if = "scrypt-kdf.cma"
