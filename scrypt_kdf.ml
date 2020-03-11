@@ -3,7 +3,7 @@ let scrypt_block_mix b r =
   and x = ref (Cstruct.sub b ((2 * r - 1) * 64) 64) in
   for i = 0 to 2 * r - 1 do
     let b_i = Cstruct.sub b (i * 64) 64 in
-    Nocrypto.Uncommon.Cs.xor_into !x b_i 64;
+    Mirage_crypto.Uncommon.Cs.xor_into !x b_i 64;
     x := Salsa20_core.salsa20_8_core b_i;
     let offset = (i mod 2) lsl (max 0 (r / 2 - 1)) + i / 2 in
     Cstruct.blit !x 0 b' (offset * 64) 64
@@ -12,7 +12,7 @@ let scrypt_block_mix b r =
 
 let scrypt_ro_mix b ~r ~n =
   let blen = r * 128 in
-  let x = ref (Nocrypto.Uncommon.Cs.clone b)
+  let x = ref (Mirage_crypto.Uncommon.Cs.clone b)
   and v = Cstruct.create (blen * n) in
   for i = 0 to n - 1 do
     Cstruct.blit !x 0 v (blen * i) blen;
@@ -22,11 +22,11 @@ let scrypt_ro_mix b ~r ~n =
     let integerify x =
       let k = Cstruct.LE.get_uint32 x (128 * r - 64) in
       let n' = n - 1 in
-      let open Nocrypto.Numeric.Int32 in
-      to_int (k land (of_int n')) in
+      Int32.(to_int (logand k (of_int n')))
+    in
     let j = integerify !x in
     let v_j = Cstruct.sub v (blen * j) blen in
-    Nocrypto.Uncommon.Cs.xor_into v_j !x blen;
+    Mirage_crypto.Uncommon.Cs.xor_into v_j !x blen;
     x := scrypt_block_mix !x r;
   done;
   !x

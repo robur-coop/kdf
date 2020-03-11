@@ -2,7 +2,7 @@
  (name scrypt_kdf)
  (public_name scrypt-kdf)
  (modules scrypt_kdf)
- (libraries cstruct nocrypto pbkdf salsa20-core))
+ (libraries cstruct mirage-crypto pbkdf salsa20-core))
 
 (test
  (name scrypt_kdf_tests)
