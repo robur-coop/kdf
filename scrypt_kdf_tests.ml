@@ -2,7 +2,7 @@ let test_scrypt_kdf ~password ~salt ~n ~r ~p ~dk_len ~dk =
   let open Cstruct in
   let password = of_string password
   and salt = of_string salt
-  and dk = to_string (Nocrypto.Uncommon.Cs.of_hex dk) in
+  and dk = to_string (of_hex dk) in
   (fun () ->
      let edk = Scrypt_kdf.scrypt_kdf ~password ~salt ~n ~r ~p ~dk_len in
      let sedk = to_string edk in
