@@ -1,5 +1,5 @@
 let scrypt_block_mix b r =
-  let b' = Cstruct.create (Cstruct.len b)
+  let b' = Cstruct.create (Cstruct.length b)
   and x = ref (Cstruct.sub b ((2 * r - 1) * 64) 64) in
   for i = 0 to 2 * r - 1 do
     let b_i = Cstruct.sub b (i * 64) 64 in
