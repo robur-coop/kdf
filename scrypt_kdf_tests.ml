@@ -48,14 +48,19 @@ let scrypt_kdf_test4 =
     ~dk_len:64l
     ~dk:"2101cb9b6a511aaeaddbbe09cf70f881ec568d574a2ffd4dabe5ee9820adaa478e56fd8f4ba5d09ffa1c6d927c40f4c337304049e8a952fbcbf45c6fa77a41a4"
 
-let scrypt_kdf_tests = [
-  "Test Case 1", `Quick, scrypt_kdf_test1;
-  "Test Case 2", `Quick, scrypt_kdf_test2;
-  "Test Case 3", `Quick, scrypt_kdf_test3;
-  "Test Case 4", `Slow, scrypt_kdf_test4;
-]
+let scrypt_kdf_tests () = 
+  let tests = [
+    "Test Case 1", `Quick, scrypt_kdf_test1;
+    "Test Case 2", `Quick, scrypt_kdf_test2;
+    "Test Case 3", `Quick, scrypt_kdf_test3;
+  ] in
+  (* Skip test case 4 for architectures with 31 bit sizes or less, as it requires a buffer larger than Int.max_size in those cases *)
+  if Sys.int_size <= 31 then
+    tests
+  else
+    tests @ [ "Test Case 4", `Slow, scrypt_kdf_test4; ]
 
 let () =
   Alcotest.run "Scrypt kdf Tests" [
-    "Scrypt kdf tests", scrypt_kdf_tests;
+    "Scrypt kdf tests", scrypt_kdf_tests ();
   ]

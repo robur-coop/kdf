@@ -1,3 +1,7 @@
+# Unreleased
+
+* Disable a failing testcase for architectures with integers no longer than 31 bits (thanks to @kit-ty-kate)
+
 # 1.2.0 (2021-08-03)
 
 * Upgrade to Cstruct 6.0.0
