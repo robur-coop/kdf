@@ -1,0 +1,4 @@
+(test
+ (name scrypt_kdf_tests)
+ (modules scrypt_kdf_tests)
+ (libraries kdf.scrypt ohex alcotest))

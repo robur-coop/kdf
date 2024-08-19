@@ -1,4 +1,4 @@
 (library
  (name pbkdf)
- (public_name pbkdf)
+ (public_name kdf.pbkdf)
  (libraries digestif mirage-crypto))

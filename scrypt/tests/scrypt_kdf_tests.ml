@@ -1,12 +1,8 @@
 let test_scrypt_kdf ~password ~salt ~n ~r ~p ~dk_len ~dk =
-  let open Cstruct in
-  let password = of_string password
-  and salt = of_string salt
-  and dk = to_string (of_hex dk) in
+  let dk = Ohex.decode dk in
   (fun () ->
-     let edk = Scrypt_kdf.scrypt_kdf ~password ~salt ~n ~r ~p ~dk_len in
-     let sedk = to_string edk in
-     Alcotest.check Alcotest.string "Scrypt test" sedk dk)
+     let edk = Scrypt.scrypt ~password ~salt ~n ~r ~p ~dk_len in
+     Alcotest.check Alcotest.string "Scrypt test" edk dk)
 
 let scrypt_kdf_test1 =
   test_scrypt_kdf
@@ -48,7 +44,7 @@ let scrypt_kdf_test4 =
     ~dk_len:64l
     ~dk:"2101cb9b6a511aaeaddbbe09cf70f881ec568d574a2ffd4dabe5ee9820adaa478e56fd8f4ba5d09ffa1c6d927c40f4c337304049e8a952fbcbf45c6fa77a41a4"
 
-let scrypt_kdf_tests () = 
+let scrypt_kdf_tests () =
   let tests = [
     "Test Case 1", `Quick, scrypt_kdf_test1;
     "Test Case 2", `Quick, scrypt_kdf_test2;

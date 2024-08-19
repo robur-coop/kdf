@@ -1,10 +1,7 @@
 (library
- (name scrypt_kdf)
- (public_name scrypt-kdf)
- (modules scrypt_kdf)
- (libraries cstruct mirage-crypto pbkdf salsa20-core))
-
-(test
- (name scrypt_kdf_tests)
- (modules scrypt_kdf_tests)
- (libraries scrypt-kdf alcotest))
+ (name scrypt)
+ (public_name kdf.scrypt)
+ (modules scrypt)
+ (libraries mirage-crypto kdf.pbkdf)
+ (c_names salsa-core)
+ (c_flags (:standard --std=c99 -Wall -Wextra -O3)))
