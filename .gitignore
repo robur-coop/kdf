@@ -1,3 +1,7 @@
-_build
+_build/
+_tests/
+coverage/
 *.install
 **/*.merlin
+*.byte
+*.native
