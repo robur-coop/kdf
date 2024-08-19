@@ -1,3 +1,4 @@
+Copyright (c) 2014, Hannes Mehnert
 Copyright (c) 2016, Alfredo Beaumont, Sonia Meruelo
 All rights reserved.
 
