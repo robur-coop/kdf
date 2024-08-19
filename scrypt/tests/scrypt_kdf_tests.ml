@@ -48,13 +48,15 @@ let scrypt_kdf_tests () =
   let tests = [
     "Test Case 1", `Quick, scrypt_kdf_test1;
     "Test Case 2", `Quick, scrypt_kdf_test2;
-    "Test Case 3", `Quick, scrypt_kdf_test3;
   ] in
-  (* Skip test case 4 for architectures with 31 bit sizes or less, as it requires a buffer larger than Int.max_size in those cases *)
+  (* Skip test case 3 and 4 for architectures with 31 bit sizes or less, as it requires a buffer larger than Int.max_size in those cases *)
   if Sys.int_size <= 31 then
     tests
   else
-    tests @ [ "Test Case 4", `Slow, scrypt_kdf_test4; ]
+    tests @ [
+      "Test Case 3", `Quick, scrypt_kdf_test3;
+      "Test Case 4", `Slow, scrypt_kdf_test4;
+    ]
 
 let () =
   Alcotest.run "Scrypt kdf Tests" [
