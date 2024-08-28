@@ -1,4 +1,4 @@
-# Unreleased
+# v1.0.0 (2024-08-28)
 
 * Migrate scrypt from Cstruct.t to string
 * Merge ocaml-pbkdf (from https://github.com/abeaumont/ocaml-pbkdf),
@@ -6,9 +6,8 @@
   https://github.com/abeaumont/ocaml-scrypt-kdf) into a single repository
   and opam package (with three subpackages, kdf.pbkdf. kdf.hkdf, and
   kdf.scrypt).
-* Make the licenses name SPDX compatible (thanks to @kit-ty-kate)
-* Change dune subst from pinned to dev (thanks to @kit-ty-kate)
-* Disable a failing testcase for architectures with integers no longer than 31 bits (thanks to @kit-ty-kate)
+* Disable a failing testcase for architectures with integers no longer than 31
+  bits (thanks to @kit-ty-kate)
 
 # pbkdf 2.0.0 (2024-06-29)
 

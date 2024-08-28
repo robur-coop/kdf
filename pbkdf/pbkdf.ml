@@ -34,8 +34,9 @@ module Make (H: Digestif.S) : S = struct
       let r = dk_len - (l - 1) * h_len in
       let block i =
         let rec f u xor = function
-            0 -> xor
-          | j -> let u = H.(to_raw_string (hmac_string ~key:password u)) in
+          | 0 -> xor
+          | j ->
+            let u = H.(to_raw_string (hmac_string ~key:password u)) in
             f u (Mirage_crypto.Uncommon.xor xor u) (j - 1)
         in
         let int_i = Bytes.create 4 in
@@ -45,8 +46,8 @@ module Make (H: Digestif.S) : S = struct
         f u_1 u_1 (count - 1)
       in
       let rec loop blocks = function
-          0 -> blocks
-        | i -> loop ((block i)::blocks) (i - 1)
+        | 0 -> blocks
+        | i -> loop (block i :: blocks) (i - 1)
       in
       String.concat "" (loop [String.sub (block l) 0 r] (l - 1))
 end
