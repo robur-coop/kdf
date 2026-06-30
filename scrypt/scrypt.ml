@@ -46,11 +46,12 @@ let scrypt_ro_mix b ~r ~n =
 
 let scrypt ~password ~salt ~n ~r ~p ~dk_len =
   let is_power_of_2 x = (x land (x - 1)) = 0 in
-  if n <= 1 then invalid_arg "n must be larger than 1"
-  else if not (is_power_of_2 n) then invalid_arg "n must be a power of 2"
-  else if p <= 0 then invalid_arg "p must be a positive integer"
-  else if p > (Int64.to_int (Int64.div 0xffffffffL 4L) / r) then invalid_arg "p too big"
-  else if dk_len <= 0l then invalid_arg "derived key length must be a positive integer";
+  if n <= 1 then failwith "n must be larger than 1"
+  else if not (is_power_of_2 n) then failwith "n must be a power of 2"
+  else if p <= 0 then failwith "p must be a positive integer"
+  else if r <= 0 then failwith "r must be a positive integer"
+  else if p > (Int64.to_int (Int64.div 0xffffffffL 4L) / r) then failwith "p too big"
+  else if dk_len <= 0l then failwith "derived key length must be a positive integer";
   let rec partition b blocks = function
     | 0 -> blocks
     | i ->
