@@ -4,6 +4,7 @@ let test_scrypt_kdf ~password ~salt ~n ~r ~p ~dk_len ~dk =
      let edk = Scrypt.scrypt ~password ~salt ~n ~r ~p ~dk_len in
      Alcotest.check Alcotest.string "Scrypt test" edk dk)
 
+(* from RFC 7914 *)
 let scrypt_kdf_test1 =
   test_scrypt_kdf
     ~password:""
@@ -44,8 +45,44 @@ let scrypt_kdf_test4 =
     ~dk_len:64l
     ~dk:"2101cb9b6a511aaeaddbbe09cf70f881ec568d574a2ffd4dabe5ee9820adaa478e56fd8f4ba5d09ffa1c6d927c40f4c337304049e8a952fbcbf45c6fa77a41a4"
 
-let scrypt_kdf_tests () =
+(* from go crypto https://github.com/golang/crypto/blob/master/scrypt/scrypt_test.go *)
+let go_test1 =
+  test_scrypt_kdf
+    ~password:"password"
+    ~salt:"salt"
+    ~n:2 ~r:10 ~p:10
+    ~dk_len:32l
+    ~dk:"482c858e229055e62f41e0ec819a5ee18bdb87251a534f75acd95ac5e50aa15f"
+
+let go_test2 =
+  test_scrypt_kdf
+    ~password:"password"
+    ~salt:"salt"
+    ~n:16 ~r:100 ~p:100
+    ~dk_len:32l
+    ~dk:"88bd5edb52d1dd00188772ad36171290224e74829525b18d7323a57f91963c37"
+
+let test_failure txt ~exn ~password ~salt ~n ~r ~p ~dk_len () =
+  Alcotest.check_raises txt (Failure exn)
+    (fun () -> ignore (Scrypt.scrypt ~password ~salt ~n ~r ~p ~dk_len))
+
+let bad_input = [
+  test_failure "N is 0" ~exn:"n must be larger than 1" ~password:"p" ~salt:"s" ~n:0 ~r:1 ~p:1 ~dk_len:32l ;
+  test_failure "N is 1" ~exn:"n must be larger than 1" ~password:"p" ~salt:"s" ~n:1 ~r:1 ~p:1 ~dk_len:32l ;
+  test_failure "N is not power of 2" ~exn:"n must be a power of 2" ~password:"p" ~salt:"s" ~n:7 ~r:8 ~p:1 ~dk_len:32l ;
+  test_failure "p * r is too large" ~exn:"p too big" ~password:"p" ~salt:"s" ~n:16 ~r:(Int.max_int / 2) ~p:(Int.max_int / 2) ~dk_len:32l ;
+  test_failure "r is too small" ~exn:"r must be a positive integer" ~password:"p" ~salt:"s" ~n:2 ~r:0 ~p:1 ~dk_len:32l ;
+  test_failure "p is too small" ~exn:"p must be a positive integer" ~password:"p" ~salt:"s" ~n:2 ~r:1 ~p:0 ~dk_len:32l ;
+  test_failure "r is negative" ~exn:"r must be a positive integer" ~password:"p" ~salt:"s" ~n:2 ~r:(-1) ~p:1 ~dk_len:32l ;
+  test_failure "p is too small" ~exn:"p must be a positive integer" ~password:"p" ~salt:"s" ~n:2 ~r:1 ~p:(-1) ~dk_len:32l ;
+  test_failure "dk_len is 0" ~exn:"derived key length must be a positive integer" ~password:"p" ~salt:"s" ~n:2 ~r:1 ~p:1 ~dk_len:0l ;
+  test_failure "dk_len is negative" ~exn:"derived key length must be a positive integer" ~password:"p" ~salt:"s" ~n:2 ~r:1 ~p:1 ~dk_len:(-1l) ;
+]
+
+let scrypt_kdf_tests =
   let tests = [
+    "Go test 1", `Quick, go_test1;
+    "Go test 2", `Quick, go_test2;
     "Test Case 1", `Quick, scrypt_kdf_test1;
     "Test Case 2", `Quick, scrypt_kdf_test2;
   ] in
@@ -58,7 +95,13 @@ let scrypt_kdf_tests () =
       "Test Case 4", `Slow, scrypt_kdf_test4;
     ]
 
+let bad_input_tests =
+  List.mapi (fun i tst ->
+      "bad input " ^ string_of_int i, `Quick, tst)
+    bad_input
+
 let () =
   Alcotest.run "Scrypt kdf Tests" [
-    "Scrypt kdf tests", scrypt_kdf_tests ();
+    "Scrypt kdf tests", scrypt_kdf_tests;
+    "Bad input tests", bad_input_tests;
   ]

@@ -1,15 +1,10 @@
 external salsa_core : int -> string -> bytes -> unit = "caml_salsa_core" [@@noalloc]
 
-let salsa20_core count i =
-  let l = 64 in
-  if String.length i <> l then invalid_arg "input must be 16 blocks of 32 bits"
-  else
-    let o = Bytes.create l in
-    salsa_core count i o;
-    Bytes.unsafe_to_string o
-
 let salsa20_8_core i =
-  salsa20_core 4 i
+  let l = 64 in
+  let o = Bytes.create l in
+  salsa_core 4 i o;
+  Bytes.unsafe_to_string o
 
 let scrypt_block_mix b r =
   let b' = Bytes.create (String.length b) in
@@ -19,7 +14,7 @@ let scrypt_block_mix b r =
     let b_i = Bytes.unsafe_of_string (String.sub b (i * 64) 64) in
     Mirage_crypto.Uncommon.unsafe_xor_into (Bytes.unsafe_to_string x) ~src_off:0 b_i ~dst_off:0 64;
     Bytes.unsafe_blit_string (salsa20_8_core (Bytes.unsafe_to_string b_i)) 0 x 0 64;
-    let offset = (i mod 2) lsl (max 0 (r / 2 - 1)) + i / 2 in
+    let offset = (i mod 2) * r + i / 2 in
     Bytes.blit x 0 b' (offset * 64) 64
   done;
   b'
@@ -46,11 +41,12 @@ let scrypt_ro_mix b ~r ~n =
 
 let scrypt ~password ~salt ~n ~r ~p ~dk_len =
   let is_power_of_2 x = (x land (x - 1)) = 0 in
-  if n <= 1 then invalid_arg "n must be larger than 1"
-  else if not (is_power_of_2 n) then invalid_arg "n must be a power of 2"
-  else if p <= 0 then invalid_arg "p must be a positive integer"
-  else if p > (Int64.to_int (Int64.div 0xffffffffL 4L) / r) then invalid_arg "p too big"
-  else if dk_len <= 0l then invalid_arg "derived key length must be a positive integer";
+  if n <= 1 then failwith "n must be larger than 1"
+  else if not (is_power_of_2 n) then failwith "n must be a power of 2"
+  else if p <= 0 then failwith "p must be a positive integer"
+  else if r <= 0 then failwith "r must be a positive integer"
+  else if p > (Int64.to_int (Int64.div 0xffffffffL 4L) / r) then failwith "p too big"
+  else if dk_len <= 0l then failwith "derived key length must be a positive integer";
   let rec partition b blocks = function
     | 0 -> blocks
     | i ->

@@ -13,10 +13,10 @@ let cdiv x y =
 
 module Make (H: Digestif.S) : S = struct
   let pbkdf1 ~password ~salt ~count ~dk_len =
-    if String.length salt <> 8 then invalid_arg "salt should be 8 bytes"
-    else if count <= 0 then invalid_arg "count must be a positive integer"
-    else if dk_len <= 0 then invalid_arg "derived key length must be a positive integer"
-    else if dk_len > H.digest_size then invalid_arg "derived key too long"
+    if String.length salt <> 8 then failwith "salt should be 8 bytes"
+    else if count <= 0 then failwith "count must be a positive integer"
+    else if dk_len <= 0 then failwith "derived key length must be a positive integer"
+    else if dk_len > H.digest_size then failwith "derived key too long"
     else
       let rec loop t = function
           0 -> t
@@ -25,8 +25,8 @@ module Make (H: Digestif.S) : S = struct
       String.sub (loop (password ^ salt) count) 0 dk_len
 
   let pbkdf2 ~password ~salt ~count ~dk_len =
-    if count <= 0 then invalid_arg "count must be a positive integer"
-    else if dk_len <= 0l then invalid_arg "derived key length must be a positive integer"
+    if count <= 0 then failwith "count must be a positive integer"
+    else if dk_len <= 0l then failwith "derived key length must be a positive integer"
     else
       let h_len = H.digest_size
       and dk_len = Int32.to_int dk_len in

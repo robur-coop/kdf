@@ -4,12 +4,12 @@
 module type S = sig
   (** [pbkdf1 password salt count dk_len] is [dk], the derived key of [dk_len] octets.
       The [salt] must be eight octets, [count] the iteration count.
-      @raise Invalid_argument when either [salt] is not eight octets long or either
+      @raise Failure when either [salt] is not eight octets long or either
       [count] or [dk_len] are not valid. *)
   val pbkdf1 : password:string -> salt:string -> count:int -> dk_len:int -> string
 
   (** [pbkdf2 password salt count dk_len] is [dk], the derived key of [dk_len] octets.
-      @raise Invalid_argument when either [count] or [dk_len] are not valid *)
+      @raise Failure when either [count] or [dk_len] are not valid *)
   val pbkdf2 : password:string -> salt:string -> count:int -> dk_len:int32 -> string
 end
 
