@@ -62,7 +62,24 @@ let go_test2 =
     ~dk_len:32l
     ~dk:"88bd5edb52d1dd00188772ad36171290224e74829525b18d7323a57f91963c37"
 
-let scrypt_kdf_tests () =
+let test_failure txt ~exn ~password ~salt ~n ~r ~p ~dk_len () =
+  Alcotest.check_raises txt (Failure exn)
+    (fun () -> ignore (Scrypt.scrypt ~password ~salt ~n ~r ~p ~dk_len))
+
+let bad_input = [
+  test_failure "N is 0" ~exn:"n must be larger than 1" ~password:"p" ~salt:"s" ~n:0 ~r:1 ~p:1 ~dk_len:32l ;
+  test_failure "N is 1" ~exn:"n must be larger than 1" ~password:"p" ~salt:"s" ~n:1 ~r:1 ~p:1 ~dk_len:32l ;
+  test_failure "N is not power of 2" ~exn:"n must be a power of 2" ~password:"p" ~salt:"s" ~n:7 ~r:8 ~p:1 ~dk_len:32l ;
+  test_failure "p * r is too large" ~exn:"p too big" ~password:"p" ~salt:"s" ~n:16 ~r:(Int.max_int / 2) ~p:(Int.max_int / 2) ~dk_len:32l ;
+  test_failure "r is too small" ~exn:"r must be a positive integer" ~password:"p" ~salt:"s" ~n:2 ~r:0 ~p:1 ~dk_len:32l ;
+  test_failure "p is too small" ~exn:"p must be a positive integer" ~password:"p" ~salt:"s" ~n:2 ~r:1 ~p:0 ~dk_len:32l ;
+  test_failure "r is negative" ~exn:"r must be a positive integer" ~password:"p" ~salt:"s" ~n:2 ~r:(-1) ~p:1 ~dk_len:32l ;
+  test_failure "p is too small" ~exn:"p must be a positive integer" ~password:"p" ~salt:"s" ~n:2 ~r:1 ~p:(-1) ~dk_len:32l ;
+  test_failure "dk_len is 0" ~exn:"derived key length must be a positive integer" ~password:"p" ~salt:"s" ~n:2 ~r:1 ~p:1 ~dk_len:0l ;
+  test_failure "dk_len is negative" ~exn:"derived key length must be a positive integer" ~password:"p" ~salt:"s" ~n:2 ~r:1 ~p:1 ~dk_len:(-1l) ;
+]
+
+let scrypt_kdf_tests =
   let tests = [
     "Go test 1", `Quick, go_test1;
     "Go test 2", `Quick, go_test2;
@@ -78,7 +95,13 @@ let scrypt_kdf_tests () =
       "Test Case 4", `Slow, scrypt_kdf_test4;
     ]
 
+let bad_input_tests =
+  List.mapi (fun i tst ->
+      "bad input " ^ string_of_int i, `Quick, tst)
+    bad_input
+
 let () =
   Alcotest.run "Scrypt kdf Tests" [
-    "Scrypt kdf tests", scrypt_kdf_tests ();
+    "Scrypt kdf tests", scrypt_kdf_tests;
+    "Bad input tests", bad_input_tests;
   ]
