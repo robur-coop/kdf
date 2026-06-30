@@ -8,12 +8,12 @@ let test_pbkdf1 ~hash ~password ~salt ~count ~dk_len ~dk =
      let edk = Pbkdf.pbkdf1 ~hash ~password ~salt ~count ~dk_len in
      Alcotest.check Alcotest.string "PBKDF1 test" edk dk)
 
-let test_pbkdf1_invalid_arg ~hash ~password ~salt ~count ~dk_len ~msg =
+let test_pbkdf1_failure ~hash ~password ~salt ~count ~dk_len ~msg =
   let salt = Ohex.decode salt in
   (fun () ->
      Alcotest.check_raises
        msg
-       (Invalid_argument msg)
+       (Failure msg)
        (fun () -> ignore (Pbkdf.pbkdf1 ~hash ~password ~salt ~count ~dk_len)))
 
 (* Taken from http://www.di-mgt.com.au/cryptoKDFs.html *)
@@ -27,7 +27,7 @@ let pbkdf1_test1 =
     ~dk:"dc19847e05c64d2faf10ebfb4a3d2a20"
 
 let pbkdf1_test2 =
-  test_pbkdf1_invalid_arg
+  test_pbkdf1_failure
     ~hash:`SHA1
     ~password:"password"
     ~salt:"78578e5a5d63cb"
@@ -36,7 +36,7 @@ let pbkdf1_test2 =
     ~msg:"salt should be 8 bytes"
 
 let pbkdf1_test3 =
-  test_pbkdf1_invalid_arg
+  test_pbkdf1_failure
     ~hash:`SHA1
     ~password:"password"
     ~salt:"78578e5a5d63cb0600"
@@ -45,7 +45,7 @@ let pbkdf1_test3 =
     ~msg:"salt should be 8 bytes"
 
 let pbkdf1_test4 =
-  test_pbkdf1_invalid_arg
+  test_pbkdf1_failure
     ~hash:`SHA1
     ~password:"password"
     ~salt:"78578e5a5d63cb06"
@@ -54,7 +54,7 @@ let pbkdf1_test4 =
     ~msg:"count must be a positive integer"
 
 let pbkdf1_test5 =
-  test_pbkdf1_invalid_arg
+  test_pbkdf1_failure
     ~hash:`SHA1
     ~password:"password"
     ~salt:"78578e5a5d63cb06"
@@ -63,7 +63,7 @@ let pbkdf1_test5 =
     ~msg:"count must be a positive integer"
 
 let pbkdf1_test6 =
-  test_pbkdf1_invalid_arg
+  test_pbkdf1_failure
     ~hash:`SHA1
     ~password:"password"
     ~salt:"78578e5a5d63cb06"
@@ -72,7 +72,7 @@ let pbkdf1_test6 =
     ~msg:"derived key too long"
 
 let pbkdf1_test7 =
-  test_pbkdf1_invalid_arg
+  test_pbkdf1_failure
     ~hash:`SHA1
     ~password:"password"
     ~salt:"78578e5a5d63cb06"
@@ -99,11 +99,11 @@ let test_pbkdf2 ~prf ~password ~salt ~count ~dk_len ~dk =
      let edk = Pbkdf.pbkdf2 ~prf ~password ~salt ~count ~dk_len in
      Alcotest.check Alcotest.string "PBKDF2 test" edk dk)
 
-let test_pbkdf2_invalid_arg ~prf ~password ~salt ~count ~dk_len ~msg () =
+let test_pbkdf2_failure ~prf ~password ~salt ~count ~dk_len ~msg () =
   let salt = Ohex.decode salt in
   Alcotest.check_raises
     msg
-    (Invalid_argument msg)
+    (Failure msg)
     (fun () -> ignore (Pbkdf.pbkdf2 ~prf ~password ~salt ~count ~dk_len))
 
 (* Taken from https://github.com/randombit/botan/blob/master/src/tests/data/pbkdf/pbkdf2.vec *)
@@ -225,7 +225,7 @@ let pbkdf2_test13 =
     ~dk:"daf8a734327745eb63d19054dbd4018a682cef11086a1bfb63fdbc16158c2f8b0742802f36aef1b1df92accbea5d31a5"
 
 let pbkdf2_test14 =
-  test_pbkdf2_invalid_arg
+  test_pbkdf2_failure
     ~prf:`SHA1
     ~password:"password"
     ~salt:"0001020304050607"
@@ -234,7 +234,7 @@ let pbkdf2_test14 =
     ~msg:"count must be a positive integer"
 
 let pbkdf2_test15 =
-  test_pbkdf2_invalid_arg
+  test_pbkdf2_failure
     ~prf:`SHA1
     ~password:"password"
     ~salt:"0001020304050607"
@@ -243,7 +243,7 @@ let pbkdf2_test15 =
     ~msg:"count must be a positive integer"
 
 let pbkdf2_test16 =
-  test_pbkdf2_invalid_arg
+  test_pbkdf2_failure
     ~prf:`SHA1
     ~password:"password"
     ~salt:"0001020304050607"
@@ -252,7 +252,7 @@ let pbkdf2_test16 =
     ~msg:"derived key length must be a positive integer"
 
 let pbkdf2_test17 =
-  test_pbkdf2_invalid_arg
+  test_pbkdf2_failure
     ~prf:`SHA1
     ~password:"password"
     ~salt:"0001020304050607"
