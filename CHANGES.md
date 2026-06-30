@@ -1,3 +1,10 @@
+# v1.1.0 (2026-06-30)
+
+* scrypt: fix for r > 8 (reported by @samoht #1, fix by @hannesm in #3 (inspired
+  by @samoht #2))
+* scrypt: add tests for r > 8 and bad input (@hannesm #3)
+* scrypt, pbkdf: raise Failure instead of Invalid_argument (@hannesm #3)
+
 # v1.0.0 (2024-08-28)
 
 * Migrate scrypt from Cstruct.t to string
