@@ -4,6 +4,7 @@ let test_scrypt_kdf ~password ~salt ~n ~r ~p ~dk_len ~dk =
      let edk = Scrypt.scrypt ~password ~salt ~n ~r ~p ~dk_len in
      Alcotest.check Alcotest.string "Scrypt test" edk dk)
 
+(* from RFC 7914 *)
 let scrypt_kdf_test1 =
   test_scrypt_kdf
     ~password:""
@@ -44,8 +45,27 @@ let scrypt_kdf_test4 =
     ~dk_len:64l
     ~dk:"2101cb9b6a511aaeaddbbe09cf70f881ec568d574a2ffd4dabe5ee9820adaa478e56fd8f4ba5d09ffa1c6d927c40f4c337304049e8a952fbcbf45c6fa77a41a4"
 
+(* from go crypto https://github.com/golang/crypto/blob/master/scrypt/scrypt_test.go *)
+let go_test1 =
+  test_scrypt_kdf
+    ~password:"password"
+    ~salt:"salt"
+    ~n:2 ~r:10 ~p:10
+    ~dk_len:32l
+    ~dk:"482c858e229055e62f41e0ec819a5ee18bdb87251a534f75acd95ac5e50aa15f"
+
+let go_test2 =
+  test_scrypt_kdf
+    ~password:"password"
+    ~salt:"salt"
+    ~n:16 ~r:100 ~p:100
+    ~dk_len:32l
+    ~dk:"88bd5edb52d1dd00188772ad36171290224e74829525b18d7323a57f91963c37"
+
 let scrypt_kdf_tests () =
   let tests = [
+    "Go test 1", `Quick, go_test1;
+    "Go test 2", `Quick, go_test2;
     "Test Case 1", `Quick, scrypt_kdf_test1;
     "Test Case 2", `Quick, scrypt_kdf_test2;
   ] in
