@@ -19,7 +19,7 @@ let scrypt_block_mix b r =
     let b_i = Bytes.unsafe_of_string (String.sub b (i * 64) 64) in
     Mirage_crypto.Uncommon.unsafe_xor_into (Bytes.unsafe_to_string x) ~src_off:0 b_i ~dst_off:0 64;
     Bytes.unsafe_blit_string (salsa20_8_core (Bytes.unsafe_to_string b_i)) 0 x 0 64;
-    let offset = (i mod 2) lsl (max 0 (r / 2 - 1)) + i / 2 in
+    let offset = (i mod 2) * r + i / 2 in
     Bytes.blit x 0 b' (offset * 64) 64
   done;
   b'
