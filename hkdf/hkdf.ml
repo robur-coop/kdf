@@ -13,6 +13,10 @@ module Make (H : Digestif.S) : S = struct
     H.(to_raw_string (hmac_string ~key ikm))
 
   let expand ~prk ?info len =
+    if len < 0 then
+      failwith "len must be non-negative"
+    else if len > 255 * H.digest_size then
+      failwith "len must be at most 255 * digest_size";
     let info = match info with
       | None -> ""
       | Some x -> x
