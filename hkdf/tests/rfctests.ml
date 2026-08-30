@@ -169,6 +169,42 @@ let expand_negative_length () =
     (Failure "len must be non-negative")
     (fun () -> ignore (Hkdf.expand ~hash:`SHA256 ~prk (-1)))
 
+(* One HMAC invocation produces one block of digest_size octets, so
+   expand must invoke HMAC ceil (len / digest_size) times. A
+   superfluous block is cut off from the output, so only the
+   invocation count can show it. *)
+let expand_hmac_invocations () =
+  let count = ref 0 in
+  let module Counting = struct
+    include Digestif.SHA256
+    let hmac_string ~key ?off ?len msg =
+      incr count ;
+      Digestif.SHA256.hmac_string ~key ?off ?len msg
+  end in
+  let module Hk = Hkdf.Make (Counting) in
+  let prk = Ohex.decode tc1_prk in
+  let check len expected =
+    count := 0 ;
+    ignore (Hk.expand ~prk len) ;
+    Alcotest.check Alcotest.int
+      (Printf.sprintf "%d octets take %d HMAC invocations" len expected)
+      expected !count
+  in
+  check 32 1 ;
+  check 42 2 ;
+  check 8160 255
+
+let expand_multiple_of_digest_size () =
+  let prk = Ohex.decode tc1_prk
+  and info = Ohex.decode tc1_info
+  and okm = Ohex.decode tc1_okm
+  in
+  let out = Hkdf.expand ~hash:`SHA256 ~prk ~info 32 in
+  Alcotest.check Alcotest.string "32-octet OKM is a prefix of Test Case 1 OKM"
+    (String.sub okm 0 32) out ;
+  let out = Hkdf.expand ~hash:`SHA256 ~prk ~info 0 in
+  Alcotest.check Alcotest.string "0-octet OKM is empty" "" out
+
 let tests = [
   "RFC 5869 Test Case 1", `Quick, test1 ;
   "RFC 5869 Test Case 2", `Quick, test2 ;
@@ -180,6 +216,8 @@ let tests = [
   "expand maximum length", `Quick, expand_max_length ;
   "expand length too long", `Quick, expand_length_too_long ;
   "expand negative length", `Quick, expand_negative_length ;
+  "expand HMAC invocation count", `Quick, expand_hmac_invocations ;
+  "expand multiple of digest size", `Quick, expand_multiple_of_digest_size ;
 ]
 
 let () = Alcotest.run "HKDF Tests" [ "RFC 5869", tests ]
