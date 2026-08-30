@@ -4,6 +4,8 @@
   size) - larger requests were accepted, with the one-octet block counter
   wrapping to 0 for block 256, and reject negative len (raising Failure for
   both)
+* hkdf: avoid computing a superfluous block in expand when len is a multiple
+  of the hash output size
 
 # v1.1.0 (2026-06-30)
 
