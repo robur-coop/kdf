@@ -12,18 +12,26 @@ let test ~hash ~ikm ?salt ?info ~l ~prk ~okm () =
    let cokm = Hkdf.expand ~hash ~prk:cprk ?info l in
    Alcotest.check Alcotest.string "OKM matches" okm cokm)
 
+(* RFC 5869, Appendix A.1: Test Case 1 *)
+let tc1_ikm = "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
+and tc1_salt = "000102030405060708090a0b0c"
+and tc1_info = "f0f1f2f3f4f5f6f7f8f9"
+and tc1_l = 42
+and tc1_prk = "077709362c2e32df0ddc3f0dc47bba63 \
+               90b6c73bb50f9c3122ec844ad7c2b3e5"
+and tc1_okm = "3cb25f25faacd57a90434f64d0362f2a \
+               2d2d0a90cf1a5a4c5db02d56ecc4c5bf \
+               34007208d5b887185865"
+
 let test1 =
   test
     ~hash:`SHA256
-    ~ikm:"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
-    ~salt:"000102030405060708090a0b0c"
-    ~info:"f0f1f2f3f4f5f6f7f8f9"
-    ~l:42
-    ~prk:"077709362c2e32df0ddc3f0dc47bba63 \
-          90b6c73bb50f9c3122ec844ad7c2b3e5"
-    ~okm:"3cb25f25faacd57a90434f64d0362f2a \
-          2d2d0a90cf1a5a4c5db02d56ecc4c5bf \
-          34007208d5b887185865"
+    ~ikm:tc1_ikm
+    ~salt:tc1_salt
+    ~info:tc1_info
+    ~l:tc1_l
+    ~prk:tc1_prk
+    ~okm:tc1_okm
     ()
 
 and test2 =
@@ -136,6 +144,67 @@ and test7 =
           673a081d70cce7acfc48"
     ()
 
+(* expand returns the same initial octets whatever length is requested,
+   so the Test Case 1 okm is a prefix of any longer output for the same
+   prk and info *)
+let expand_max_length () =
+  let prk = Ohex.decode tc1_prk
+  and info = Ohex.decode tc1_info
+  and okm = Ohex.decode tc1_okm
+  in
+  let out = Hkdf.expand ~hash:`SHA256 ~prk ~info 8160 in
+  Alcotest.check Alcotest.int "OKM is 8160 octets" 8160 (String.length out) ;
+  Alcotest.check Alcotest.string "OKM starts with Test Case 1 OKM"
+    okm (String.sub out 0 (String.length okm))
+
+let expand_length_too_long () =
+  let prk = Ohex.decode tc1_prk in
+  Alcotest.check_raises "8161 octets with SHA256 is rejected"
+    (Failure "len must be at most 255 * digest_size")
+    (fun () -> ignore (Hkdf.expand ~hash:`SHA256 ~prk 8161))
+
+let expand_negative_length () =
+  let prk = Ohex.decode tc1_prk in
+  Alcotest.check_raises "negative length is rejected"
+    (Failure "len must be non-negative")
+    (fun () -> ignore (Hkdf.expand ~hash:`SHA256 ~prk (-1)))
+
+(* One HMAC invocation produces one block of digest_size octets, so
+   expand must invoke HMAC ceil (len / digest_size) times. A
+   superfluous block is cut off from the output, so only the
+   invocation count can show it. *)
+let expand_hmac_invocations () =
+  let count = ref 0 in
+  let module Counting = struct
+    include Digestif.SHA256
+    let hmac_string ~key ?off ?len msg =
+      incr count ;
+      Digestif.SHA256.hmac_string ~key ?off ?len msg
+  end in
+  let module Hk = Hkdf.Make (Counting) in
+  let prk = Ohex.decode tc1_prk in
+  let check len expected =
+    count := 0 ;
+    ignore (Hk.expand ~prk len) ;
+    Alcotest.check Alcotest.int
+      (Printf.sprintf "%d octets take %d HMAC invocations" len expected)
+      expected !count
+  in
+  check 32 1 ;
+  check 42 2 ;
+  check 8160 255
+
+let expand_multiple_of_digest_size () =
+  let prk = Ohex.decode tc1_prk
+  and info = Ohex.decode tc1_info
+  and okm = Ohex.decode tc1_okm
+  in
+  let out = Hkdf.expand ~hash:`SHA256 ~prk ~info 32 in
+  Alcotest.check Alcotest.string "32-octet OKM is a prefix of Test Case 1 OKM"
+    (String.sub okm 0 32) out ;
+  let out = Hkdf.expand ~hash:`SHA256 ~prk ~info 0 in
+  Alcotest.check Alcotest.string "0-octet OKM is empty" "" out
+
 let tests = [
   "RFC 5869 Test Case 1", `Quick, test1 ;
   "RFC 5869 Test Case 2", `Quick, test2 ;
@@ -144,6 +213,11 @@ let tests = [
   "RFC 5869 Test Case 5", `Quick, test5 ;
   "RFC 5869 Test Case 6", `Quick, test6 ;
   "RFC 5869 Test Case 7", `Quick, test7 ;
+  "expand maximum length", `Quick, expand_max_length ;
+  "expand length too long", `Quick, expand_length_too_long ;
+  "expand negative length", `Quick, expand_negative_length ;
+  "expand HMAC invocation count", `Quick, expand_hmac_invocations ;
+  "expand multiple of digest size", `Quick, expand_multiple_of_digest_size ;
 ]
 
 let () = Alcotest.run "HKDF Tests" [ "RFC 5869", tests ]

@@ -10,10 +10,12 @@ module type S = sig
       material. *)
   val extract : ?salt:string -> string -> string
 
-  (** [extract prk info length] is [okm], the output keying material.  Given the
+  (** [expand prk info length] is [okm], the output keying material.  Given the
   pseudorandom key of hash length (usually output of [!extract] step), and an
   optional context and application specific information [info], the [okm] is
-  generated. *)
+  generated.
+  @raise Failure when [length] is negative or exceeds 255 * hash output size
+  (the RFC 5869 limit). *)
   val expand : prk:string -> ?info:string -> int -> string
 end
 

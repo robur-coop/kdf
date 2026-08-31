@@ -13,6 +13,10 @@ module Make (H : Digestif.S) : S = struct
     H.(to_raw_string (hmac_string ~key ikm))
 
   let expand ~prk ?info len =
+    if len < 0 then
+      failwith "len must be non-negative"
+    else if len > 255 * H.digest_size then
+      failwith "len must be at most 255 * digest_size";
     let info = match info with
       | None -> ""
       | Some x -> x
@@ -21,7 +25,7 @@ module Make (H : Digestif.S) : S = struct
       let nc = String.make 1 (Char.unsafe_chr n) in
       H.(to_raw_string (hmac_string ~key:prk (String.concat "" [last ; info ; nc])))
     in
-    let n = succ (len / H.digest_size) in
+    let n = (len + H.digest_size - 1) / H.digest_size in
     let rec compute acc count = match count, acc with
       | c, xs when c > n -> String.concat "" (List.rev xs)
       | c, x::_ -> compute (t c x :: acc) (succ c)
