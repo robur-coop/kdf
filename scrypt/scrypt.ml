@@ -46,7 +46,8 @@ let scrypt ~password ~salt ~n ~r ~p ~dk_len =
   else if p <= 0 then failwith "p must be a positive integer"
   else if r <= 0 then failwith "r must be a positive integer"
   else if p > (Int64.to_int (Int64.div 0xffffffffL 4L) / r) then failwith "p too big"
-  else if dk_len <= 0l then failwith "derived key length must be a positive integer";
+  else if dk_len <= 0l then failwith "derived key length must be a positive integer"
+  else if r * n <= 0 || r * n > (Sys.max_string_length + 127) / 128 then failwith "r * n is too big";
   let rec partition b blocks = function
     | 0 -> blocks
     | i ->
