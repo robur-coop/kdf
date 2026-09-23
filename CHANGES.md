@@ -1,3 +1,7 @@
+# v1.1.2 (2026-09-23)
+
+* scrypt: bound r * n to be below the maximum string length (#5 @hannesm)
+
 # v1.1.1 (2026-08-31)
 
 * hkdf: enforce the RFC 5869 length bound in expand (len <= 255 * hash output
